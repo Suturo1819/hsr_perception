@@ -14,6 +14,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
+#include <mongo/client/dbclient.h>
 
 #include "include/PerceptionActionServer.h"
 
@@ -62,9 +63,14 @@ void rsPoseToGeoPose(rs::StampedPose pose, geometry_msgs::PoseStamped &geoPose) 
 
 
 void PerceptionActionServer::execPipeline(std::string pipeline) {
+
+    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+    resourceManager.setLoggingLevel(uima::LogStream::EnError);
     std::string pipelinePath;
     rs::common::getAEPaths(pipeline, pipelinePath);
     engine.init(pipelinePath, false);
+    uima::ErrorInfo errorInfo;
+    mongo::client::GlobalInstance instance;
     engine.process();
 
     uima::CAS* tcas = engine.getCas();
@@ -76,12 +82,20 @@ void PerceptionActionServer::execPipeline(std::string pipeline) {
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     for (auto &cluster : clusters) {
-        getClusterFeatures(cluster);
+        getClusterFeatures(cluster, result.detectionData);
     }
+    if(!result.detectionData.empty()) {
+        feedback.feedback = "Object Feature detection was successful.";
+    } else {
+        feedback.feedback = "it seems like there are no objects visible.";
+    }
+    server.setSucceeded(result);
+    server.publishFeedback(feedback);
+    engine.destroy();
 
 }
 
-void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster) {
+void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, std::vector<ObjectDetectionData> &data) {
 
     std::vector<rs::Shape> shapes;
     cluster.annotations.filter(shapes);
@@ -97,10 +111,7 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster) {
             rsPoseToGeoPose(pose.world.get(), poseStamped);
             makeObjectDetectionData(poseStamped, geometry[0], shapes[0], odd);
 
-            result.detectionData = odd;
-            server.setSucceeded(result);
-            feedback.feedback = "Object Feature detection was successful.";
-            server.publishFeedback(feedback);
+            data.push_back(odd);
         }
     } else {
         feedback.feedback = "Object Feature detection was unsuccessful. It seems like no shapes/poses were recognized.";
@@ -112,8 +123,10 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster) {
 void PerceptionActionServer::execute(const PerceiveGoalConstPtr &goal) {
     auto pipeline = goal->pipeline;
     if(pipeline == "table") {
+        ROS_INFO("Executing table pipeline");
         execPipeline("hsrb_table");
     } else if(pipeline == "shelf") {
+        ROS_INFO("Executing shelf pipeline");
         execPipeline("hsrb_shelf");
     } else {
         feedback.feedback = "There is no pipeline defined for " + pipeline;

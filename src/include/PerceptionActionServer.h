@@ -29,7 +29,7 @@ protected:
     RSAnalysisEngine engine;
 
     void execPipeline(std::string pipeline);
-    void getClusterFeatures(rs::ObjectHypothesis cluster);
+    void getClusterFeatures(rs::ObjectHypothesis cluster, std::vector<ObjectDetectionData> &data);
 
 public:
     PerceptionActionServer(std::string name) :
@@ -37,6 +37,8 @@ public:
             server(nh, name, boost::bind(&PerceptionActionServer::execute, this, _1), false)
     {
         server.start();
+        ROS_INFO("Perception Server started.");
+
     }
 
     ~PerceptionActionServer(){}
