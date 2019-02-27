@@ -21,23 +21,16 @@
 using namespace suturo_perception_msgs;
 
 
-u_int shape_map(std::string shape) {
-    if (shape == "round" || shape == "cylinder") {
-        return ObjectDetectionData::CYLINDER;
-    } else if (shape == "box") {
-        return ObjectDetectionData::BOX;
-    }
-    return ObjectDetectionData::MISC;
-}
 
-void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, rs::Shape shape, ObjectDetectionData &odd) {
-    odd.shape = shape_map(shape.shape());
+void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, ObjectDetectionData &odd) {
     odd.pose = pose;
     auto boundingBox = geometry.boundingBox();
     odd.width = boundingBox.width();
     odd.height = boundingBox.height();
     odd.depth = boundingBox.depth();
     odd.name = "Object (" + pose.header.frame_id + ")";
+
+    //Todo: Add features that got extracted from the classificators here
 }
 
 
@@ -97,24 +90,23 @@ void PerceptionActionServer::execPipeline(std::string pipeline) {
 
 void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, std::vector<ObjectDetectionData> &data) {
 
-    std::vector<rs::Shape> shapes;
-    cluster.annotations.filter(shapes);
     std::vector<rs::Geometry> geometry;
     cluster.annotations.filter(geometry);
 
-    if(!shapes.empty() && !geometry.empty()) {
+    if(!geometry.empty()) {
         std::vector<rs::PoseAnnotation> poses;
         cluster.annotations.filter(poses);
-        for (auto &pose : poses) {
+        if(!poses.empty()) {
             ObjectDetectionData odd;
             geometry_msgs::PoseStamped poseStamped;
-            rsPoseToGeoPose(pose.world.get(), poseStamped);
-            makeObjectDetectionData(poseStamped, geometry[0], shapes[0], odd);
+            rsPoseToGeoPose(poses[0].world.get(), poseStamped);
+            makeObjectDetectionData(poseStamped, geometry[0], odd);
 
             data.push_back(odd);
         }
+        // TODO: Extract features from the classificators here
     } else {
-        feedback.feedback = "Object Feature detection was unsuccessful. It seems like no shapes/poses were recognized.";
+        feedback.feedback = "Object Feature detection was unsuccessful. It seems like no poses were recognized.";
         server.publishFeedback(feedback);
     }
 
