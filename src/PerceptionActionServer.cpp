@@ -137,7 +137,7 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
 //                odd.shape =i
 //                }
 //            }
-//            data.push_back(odd);
+            data.push_back(odd);
 
         }
 
