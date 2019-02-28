@@ -96,14 +96,53 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
     if(!geometry.empty()) {
         std::vector<rs::PoseAnnotation> poses;
         cluster.annotations.filter(poses);
+        std::vector<rs::Classification> classification;
+
+        std::vector<rs::Shape> shape;
+
         if(!poses.empty()) {
             ObjectDetectionData odd;
             geometry_msgs::PoseStamped poseStamped;
             rsPoseToGeoPose(poses[0].world.get(), poseStamped);
+
             makeObjectDetectionData(poseStamped, geometry[0], odd);
 
-            data.push_back(odd);
+            cluster.annotations.filter(classification);
+            if(!classification.empty()){
+                odd.obj_class = classification[0].classname.get();
+//                odd.confidence = classification[0].confidences.get()[0].score.get();
+            }
+            std::vector<rs::ClassConfidence> confi;
+            cluster.annotations.filter(confi);
+            if(!confi.empty()){
+                odd.confidence = confi[0].score.get();
+            }
+
+//            cluster.annotations.filter(shape);
+//            if(!shape.empty()){
+//                int i = 0;
+//                switch_case(shape[0].shape.get());
+//
+//                void switch_case(const char * str)
+//                {
+//                switch(hash(str)) {
+//                    case hash("box") :
+//                        i = 1;
+//                        break;
+//                }
+//
+//
+//
+//                        }
+//                odd.shape =i
+//                }
+//            }
+//            data.push_back(odd);
+
         }
+
+
+
         // TODO: Extract features from the classificators here
     } else {
         feedback.feedback = "Object Feature detection was unsuccessful. It seems like no poses were recognized.";
