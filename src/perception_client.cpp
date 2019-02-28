@@ -43,6 +43,8 @@ int main (int argc, char **argv)
             ROS_INFO("z: %f", obj.pose.pose.position.z);
             ROS_INFO("Width: %f", obj.width);
             ROS_INFO("Height: %f", obj.height);
+            ROS_INFO("Depth: %f", obj.depth);
+            ROS_INFO("Shape: %f", obj.shape);
             ROS_INFO("==================================================");
         }
         actionlib::SimpleClientGoalState state = ac.getState();
