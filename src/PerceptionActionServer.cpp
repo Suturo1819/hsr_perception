@@ -22,15 +22,17 @@ using namespace suturo_perception_msgs;
 
 
 
-void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, ObjectDetectionData &odd) {
+void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, u_int shape, std::string objClass, float confidence, ObjectDetectionData &odd) {
     odd.pose = pose;
     auto boundingBox = geometry.boundingBox();
     odd.width = boundingBox.width();
     odd.height = boundingBox.height();
     odd.depth = boundingBox.depth();
-    odd.name = "Object (" + pose.header.frame_id + ")";
+    odd.name = "Object (" + objClass + ")";
+    odd.shape = shape;
 
-    //Todo: Add features that got extracted from the classificators here
+    odd.obj_class = objClass;
+    odd.confidence = confidence;
 }
 
 
@@ -79,11 +81,12 @@ void PerceptionActionServer::execPipeline(std::string pipeline) {
     }
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
+        server.publishFeedback(feedback);
+        server.setSucceeded(result);
     } else {
-        feedback.feedback = "it seems like there are no objects visible.";
+        feedback.feedback = "No object detection data was perceived. Make sure that there are visible objects in the scene.";
+        server.publishFeedback(feedback);
     }
-    server.setSucceeded(result);
-    server.publishFeedback(feedback);
     engine.destroy();
 
 }
@@ -96,56 +99,46 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
     if(!geometry.empty()) {
         std::vector<rs::PoseAnnotation> poses;
         cluster.annotations.filter(poses);
+
         std::vector<rs::Classification> classification;
+        cluster.annotations.filter(classification);
 
-        std::vector<rs::Shape> shape;
+        std::vector<rs::ClassConfidence> confi;
+        cluster.annotations.filter(confi);
 
+        std::vector<rs::Shape> shapes;
+        cluster.annotations.filter(shapes);
+
+        geometry_msgs::PoseStamped poseStamped;
+        std::string objClass;
+        u_int shape = 0;
+        float confidence = 0;
+        ObjectDetectionData odd;
         if(!poses.empty()) {
-            ObjectDetectionData odd;
-            geometry_msgs::PoseStamped poseStamped;
             rsPoseToGeoPose(poses[0].world.get(), poseStamped);
-
-            makeObjectDetectionData(poseStamped, geometry[0], odd);
-
-            cluster.annotations.filter(classification);
-            if(!classification.empty()){
-                odd.obj_class = classification[0].classname.get();
-//                odd.confidence = classification[0].confidences.get()[0].score.get();
-            }
-            std::vector<rs::ClassConfidence> confi;
-            cluster.annotations.filter(confi);
-            if(!confi.empty()){
-                odd.confidence = confi[0].score.get();
-            }
-
-//            cluster.annotations.filter(shape);
-//            if(!shape.empty()){
-//                int i = 0;
-//                switch_case(shape[0].shape.get());
-//
-//                void switch_case(const char * str)
-//                {
-//                switch(hash(str)) {
-//                    case hash("box") :
-//                        i = 1;
-//                        break;
-//                }
-//
-//
-//
-//                        }
-//                odd.shape =i
-//                }
-//            }
-            data.push_back(odd);
-
+        } else {
+            feedback.feedback = "Warning: No pose information was perceived";
+            server.publishFeedback(feedback);
+        }
+        if(!classification.empty()){
+            objClass = classification[0].classname.get();
+        } else {
+            feedback.feedback = "Warning: No object class was perceived";
+            server.publishFeedback(feedback);
+        }
+        if(!confi.empty()){
+            odd.confidence = confi[0].score.get();
+        } else {
+            feedback.feedback = "Warning: No confidence was perceived";
+            server.publishFeedback(feedback);
         }
 
+        makeObjectDetectionData(poseStamped, geometry[0], shape, objClass, confidence, odd);
+        data.push_back(odd);
 
 
-        // TODO: Extract features from the classificators here
     } else {
-        feedback.feedback = "Object Feature detection was unsuccessful. It seems like no poses were recognized.";
+        feedback.feedback = "Object Feature detection was unsuccessful. No geometries were recognized for this object.";
         server.publishFeedback(feedback);
     }
 
