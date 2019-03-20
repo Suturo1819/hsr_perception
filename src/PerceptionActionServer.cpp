@@ -7,20 +7,24 @@
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/server/action_server.h>
 #include <suturo_perception_msgs/ObjectDetectionData.h>
-#include <suturo_perception_msgs/PerceiveAction.h>
-
-// RoboSherlock stuff
-#include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <mongo/client/dbclient.h>
 
 #include "include/PerceptionActionServer.h"
 
 using namespace suturo_perception_msgs;
 
 
+PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline) :
+    action_name(name)
+{
+        ROS_INFO("Initializing RoboSherlock...");
+        uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+        resourceManager.setLoggingLevel(uima::LogStream::EnError);
+        std::string pipelinePath;
+        rs::common::getAEPaths(pipeline, pipelinePath);
+        engine.init(pipelinePath, false);
+        uima::ErrorInfo errorInfo;
+        mongo::client::GlobalInstance instance;
+}
 
 void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, u_int shape, std::string objClass, float confidence, ObjectDetectionData &odd) {
     odd.pose = pose;
@@ -57,15 +61,9 @@ void rsPoseToGeoPose(rs::StampedPose pose, geometry_msgs::PoseStamped &geoPose) 
 }
 
 
-void PerceptionActionServer::execPipeline(std::string pipeline) {
+void PerceptionActionServer::process(std::vector<ObjectDetectionData> &detection_data) {
 
-    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
-    resourceManager.setLoggingLevel(uima::LogStream::EnError);
-    std::string pipelinePath;
-    rs::common::getAEPaths(pipeline, pipelinePath);
-    engine.init(pipelinePath, false);
-    uima::ErrorInfo errorInfo;
-    mongo::client::GlobalInstance instance;
+
     engine.process();
 
     uima::CAS* tcas = engine.getCas();
@@ -77,17 +75,8 @@ void PerceptionActionServer::execPipeline(std::string pipeline) {
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     for (auto &cluster : clusters) {
-        getClusterFeatures(cluster, result.detectionData);
+        getClusterFeatures(cluster, detection_data);
     }
-    if(!result.detectionData.empty()) {
-        feedback.feedback = "Object Feature detection was successful.";
-        server.publishFeedback(feedback);
-        server.setSucceeded(result);
-    } else {
-        feedback.feedback = "No object detection data was perceived. Make sure that there are visible objects in the scene.";
-        server.publishFeedback(feedback);
-    }
-    engine.destroy();
 
 }
 
@@ -117,20 +106,17 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
         if(!poses.empty()) {
             rsPoseToGeoPose(poses[0].world.get(), poseStamped);
         } else {
-            feedback.feedback = "Warning: No pose information was perceived";
-            server.publishFeedback(feedback);
+            ROS_WARN("Warning: No pose information was perceived");
         }
         if(!classification.empty()){
             objClass = classification[0].classname.get();
         } else {
-            feedback.feedback = "Warning: No object class was perceived";
-            server.publishFeedback(feedback);
+            ROS_WARN("Warning: No object class was perceived");
         }
         if(!confi.empty()){
             odd.confidence = confi[0].score.get();
         } else {
-            feedback.feedback = "Warning: No confidence was perceived";
-            server.publishFeedback(feedback);
+            ROS_WARN("Warning: No confidence was perceived");
         }
 
         makeObjectDetectionData(poseStamped, geometry[0], shape, objClass, confidence, odd);
@@ -138,24 +124,9 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
 
 
     } else {
-        feedback.feedback = "Object Feature detection was unsuccessful. No geometries were recognized for this object.";
-        server.publishFeedback(feedback);
+        ROS_WARN("Object Feature detection was unsuccessful. No geometries were recognized for this object.");
     }
 
-}
-
-void PerceptionActionServer::execute(const PerceiveGoalConstPtr &goal) {
-    auto pipeline = goal->pipeline;
-    if(pipeline == "table") {
-        ROS_INFO("Executing table pipeline");
-        execPipeline("hsrb_table");
-    } else if(pipeline == "shelf") {
-        ROS_INFO("Executing shelf pipeline");
-        execPipeline("hsrb_shelf");
-    } else {
-        feedback.feedback = "There is no pipeline defined for " + pipeline;
-        server.publishFeedback(feedback);
-    }
 }
 
 
