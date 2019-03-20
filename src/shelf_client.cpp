@@ -17,13 +17,13 @@ int main (int argc, char **argv)
 
     // create the action client
     // true causes the client to spin its own thread
-    actionlib::SimpleActionClient<PerceiveShelfAction> ac("hsr_perception_table", true);
+    actionlib::SimpleActionClient<PerceiveShelfAction> ac("hsr_perception_shelf", true);
 
-    ROS_INFO("Waiting for Table action server to start.");
+    ROS_INFO("Waiting for Shelf action server to start.");
     // wait for the action server to start
     ac.waitForServer(); //will wait for infinite time
 
-    ROS_INFO("Table Action server started, sending goal.");
+    ROS_INFO("Shelf Action server started, sending goal.");
     // send a goal to the action
     PerceiveShelfGoal goal;
     goal.visualisation = true;
