@@ -21,6 +21,8 @@ PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pi
         resourceManager.setLoggingLevel(uima::LogStream::EnError);
         std::string pipelinePath;
         rs::common::getAEPaths(pipeline, pipelinePath);
+
+        //SuturoProcessManager
         engine.init(pipelinePath, false);
         uima::ErrorInfo errorInfo;
         mongo::client::GlobalInstance instance;

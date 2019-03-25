@@ -16,6 +16,7 @@
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <mongo/client/init.h>
+#include <rs_>
 
 using namespace suturo_perception_msgs;
 
