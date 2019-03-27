@@ -28,7 +28,7 @@ PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pi
         mongo::client::GlobalInstance instance;
 }
 
-void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, u_int shape, std::string objClass, float confidence, ObjectDetectionData &odd) {
+void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, u_int shape, std::string objClass, float confidence, std::string knownObjClass, float knownObjConfidence, ObjectDetectionData &odd) {
     odd.pose = pose;
     auto boundingBox = geometry.boundingBox();
     odd.width = boundingBox.width();
@@ -39,6 +39,9 @@ void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geome
 
     odd.obj_class = objClass;
     odd.confidence = confidence;
+
+    odd.known_obj_class = knownObjClass;
+    odd.known_obj_confidence = knownObjConfidence;
 }
 
 
@@ -102,8 +105,10 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
 
         geometry_msgs::PoseStamped poseStamped;
         std::string objClass;
+        std::string knownObjClass;
         u_int shape = 0;
         float confidence = 0;
+        float knownObjConfidence = 0;
         ObjectDetectionData odd;
         if(!poses.empty()) {
             rsPoseToGeoPose(poses[0].world.get(), poseStamped);
@@ -112,16 +117,22 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
         }
         if(!classification.empty()){
             objClass = classification[0].classname.get();
+            knownObjClass = classification[1].classname.get();
+            outInfo("OBJCLASSNAME >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: " << classification[0].classname.get());
+            outInfo("OBJCLASSNAME >>>>>>>>>KNOWN>>>>>>>KNOWN>>>>>>>: " << classification[1].classname.get());
         } else {
             ROS_WARN("Warning: No object class was perceived");
         }
         if(!confi.empty()){
-            odd.confidence = confi[0].score.get();
+            confidence = confi[0].score.get();
+            knownObjConfidence = confi[0].score.get();
+            outInfo("OBJCLASSCONFI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<: " << confi[0].score.get());
+            outInfo("OBJCLASSCONFI <<<<<<<<<KNOWN<<<<<<<KNOWN<<<<<<: " << confi[1].score.get());
         } else {
             ROS_WARN("Warning: No confidence was perceived");
         }
 
-        makeObjectDetectionData(poseStamped, geometry[0], shape, objClass, confidence, odd);
+        makeObjectDetectionData(poseStamped, geometry[0], shape, objClass, confidence, knownObjClass, knownObjConfidence, odd);
         data.push_back(odd);
 
 
