@@ -125,7 +125,7 @@ void PerceptionActionServer::getClusterFeatures(rs::ObjectHypothesis cluster, st
         }
         if(!confi.empty()){
             confidence = confi[0].score.get();
-            knownObjConfidence = confi[0].score.get();
+            knownObjConfidence = confi[1].score.get();
             outInfo("OBJCLASSCONFI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<: " << confi[0].score.get());
             outInfo("OBJCLASSCONFI <<<<<<<<<KNOWN<<<<<<<KNOWN<<<<<<: " << confi[1].score.get());
         } else {
