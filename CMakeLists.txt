@@ -75,7 +75,7 @@ include_directories(
 
 find_additional_files()
 
-#find_library(RS_SUTURO rs_hsrb_perception)
+find_library(RS_SUTURO rs_hsrb_perception)
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
         src/PerceptionActionServer.cpp
