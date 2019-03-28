@@ -13,8 +13,9 @@
 using namespace suturo_perception_msgs;
 
 
-PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline) :
-    action_name(name)
+PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath) :
+    action_name(name),
+    pm(nh, savePath)
 {
         ROS_INFO("Initializing RoboSherlock...");
         uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
@@ -22,8 +23,7 @@ PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pi
         std::string pipelinePath;
         rs::common::getAEPaths(pipeline, pipelinePath);
 
-        //SuturoProcessManager
-        engine.init(pipelinePath, false);
+        pm.init(pipelinePath);
         uima::ErrorInfo errorInfo;
         mongo::client::GlobalInstance instance;
 }
@@ -66,12 +66,12 @@ void rsPoseToGeoPose(rs::StampedPose pose, geometry_msgs::PoseStamped &geoPose) 
 }
 
 
-void PerceptionActionServer::process(std::vector<ObjectDetectionData> &detection_data) {
+void PerceptionActionServer::process(bool visualize, std::vector<ObjectDetectionData> &detection_data) {
 
 
-    engine.process();
+    pm.run(visualize);
 
-    uima::CAS* tcas = engine.getCas();
+    uima::CAS* tcas = pm.engine_.getCas();
     rs::SceneCas cas(*tcas);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     cas.get(VIEW_CLOUD, *cloud_ptr);

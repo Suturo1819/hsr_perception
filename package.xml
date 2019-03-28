@@ -51,6 +51,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>robosherlock</build_depend>
   <exec_depend>robosherlock</exec_depend>
+  <build_depend>rs_hsrb_perception</build_depend>
+  <exec_depend>rs_hsrb_perception</exec_depend>
   <build_depend>suturo_perception_msgs</build_depend>
   <exec_depend>suturo_perception_msgs</exec_depend>
   <build_depend>geometry_msgs</build_depend>

@@ -16,6 +16,7 @@
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <mongo/client/init.h>
+#include <rs_hsrb_perception/SuturoProcessManager.h>
 
 using namespace suturo_perception_msgs;
 
@@ -24,14 +25,14 @@ class PerceptionActionServer {
 protected:
     ros::NodeHandle nh;
     std::string action_name;
-    RSAnalysisEngine engine;
+    SuturoProcessManager pm;
 
-    void process(std::vector<ObjectDetectionData> &detection_data);
+    void process(bool visualize, std::vector<ObjectDetectionData> &detection_data);
 
     void getClusterFeatures(rs::ObjectHypothesis cluster, std::vector<ObjectDetectionData> &data);
 
 public:
-    PerceptionActionServer(std::string &name, std::string pipeline);
+    PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath);
 
     ~PerceptionActionServer(){}
 };
@@ -43,7 +44,7 @@ protected:
     PerceiveTableResult result;
 
 public:
-    PerceiveTable(std::string name);
+    PerceiveTable(std::string name, std::string savePath);
     void execute(const PerceiveTableGoalConstPtr &goal);
 };
 
@@ -54,6 +55,6 @@ protected:
     PerceiveShelfResult result;
 
 public:
-    PerceiveShelf(std::string name);
+    PerceiveShelf(std::string name, std::string savePath);
     void execute(const PerceiveShelfGoalConstPtr &goal);
 };

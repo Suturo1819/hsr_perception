@@ -5,8 +5,8 @@
 #include <PerceptionActionServer.h>
 
 
-PerceiveTable::PerceiveTable(std::string name) :
-        PerceptionActionServer(name, "hsrb_table"),
+PerceiveTable::PerceiveTable(std::string name, std::string savePath) :
+        PerceptionActionServer(name, "hsrb_table", savePath),
         server(nh, name, boost::bind(&PerceiveTable::execute, this, _1), false)
 {
     server.start();
@@ -15,7 +15,7 @@ PerceiveTable::PerceiveTable(std::string name) :
 
 
 void PerceiveTable::execute(const PerceiveTableGoalConstPtr &goal) {
-    process(result.detectionData);
+    process(goal->visualisation, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
         server.publishFeedback(feedback);
