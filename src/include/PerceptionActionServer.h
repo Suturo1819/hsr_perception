@@ -25,7 +25,7 @@ protected:
 public:
     PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath);
 
-    ~PerceptionActionServer(){}
+    ~PerceptionActionServer(){};
 };
 
 class PerceiveTable : PerceptionActionServer {
