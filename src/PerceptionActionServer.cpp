@@ -11,7 +11,7 @@ using namespace suturo_perception_msgs;
 
 PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath) :
     action_name(name),
-    pm(nh, savePath)
+    pm(nh, savePath, name)
 {
         ROS_INFO("Initializing RoboSherlock...");
 
