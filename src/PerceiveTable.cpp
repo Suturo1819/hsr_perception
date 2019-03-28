@@ -15,7 +15,7 @@ PerceiveTable::PerceiveTable(std::string name, std::string savePath) :
 
 
 void PerceiveTable::execute(const PerceiveTableGoalConstPtr &goal) {
-    process(goal->visualisation, result.detectionData);
+    pm.run(goal->visualisation, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
         server.publishFeedback(feedback);

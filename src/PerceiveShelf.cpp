@@ -10,11 +10,11 @@ PerceptionActionServer(name, "hsrb_shelf", savePath),
 server(nh, name, boost::bind(&PerceiveShelf::execute, this, _1), false)
 {
 server.start();
-ROS_INFO("Perception Server for table observation started.");
+ROS_INFO("Perception Server for shelf observation started.");
 }
 
 void PerceiveShelf::execute(const PerceiveShelfGoalConstPtr &goal) {
-    process(goal->visualisation, result.detectionData);
+    pm.run(goal->visualisation, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
         server.publishFeedback(feedback);
