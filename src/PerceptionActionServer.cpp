@@ -3,18 +3,14 @@
  * @author Fenja Kollasch
  */
 
-#include <ros/ros.h>
-#include <actionlib/server/simple_action_server.h>
-#include <actionlib/server/action_server.h>
-#include <suturo_perception_msgs/ObjectDetectionData.h>
-
-#include "include/PerceptionActionServer.h"
+#include <PerceptionActionServer.h>
 
 using namespace suturo_perception_msgs;
 
 
-PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline) :
+PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath) :
     action_name(name)
+    //processManager(nh, savePath)
 {
         ROS_INFO("Initializing RoboSherlock...");
         uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
@@ -22,10 +18,14 @@ PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pi
         std::string pipelinePath;
         rs::common::getAEPaths(pipeline, pipelinePath);
 
-        //SuturoProcessManager
-        engine.init(pipelinePath, false);
+        //processManager.init(pipelinePath);
         uima::ErrorInfo errorInfo;
         mongo::client::GlobalInstance instance;
+}
+
+PerceptionActionServer::~PerceptionActionServer() {
+    //processManager.stop();
+    outInfo("ActionServer was killed.");
 }
 
 void makeObjectDetectionData(geometry_msgs::PoseStamped pose, rs::Geometry geometry, u_int shape, std::string objClass, float confidence, std::string knownObjClass, float knownObjConfidence, ObjectDetectionData &odd) {
@@ -66,12 +66,12 @@ void rsPoseToGeoPose(rs::StampedPose pose, geometry_msgs::PoseStamped &geoPose) 
 }
 
 
-void PerceptionActionServer::process(std::vector<ObjectDetectionData> &detection_data) {
+void PerceptionActionServer::process(bool visualize, std::vector<ObjectDetectionData> &detection_data) {
 
 
-    engine.process();
+   /* processManager.run(visualize);
 
-    uima::CAS* tcas = engine.getCas();
+    uima::CAS* tcas = processManager.engine_.getCas();
     rs::SceneCas cas(*tcas);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     cas.get(VIEW_CLOUD, *cloud_ptr);
@@ -81,7 +81,7 @@ void PerceptionActionServer::process(std::vector<ObjectDetectionData> &detection
     scene.identifiables.filter(clusters);
     for (auto &cluster : clusters) {
         getClusterFeatures(cluster, detection_data);
-    }
+    }*/
 
 }
 

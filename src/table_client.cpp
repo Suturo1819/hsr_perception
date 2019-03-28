@@ -26,7 +26,7 @@ int main (int argc, char **argv)
     ROS_INFO("Table Action server started, sending goal.");
     // send a goal to the action
     PerceiveTableGoal goal;
-    goal.visualisation = true;
+    goal.visualisation = 1;
     ac.sendGoal(goal);
 
     //wait for the action to return
