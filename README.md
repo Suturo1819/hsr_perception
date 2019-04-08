@@ -1,10 +1,11 @@
 # hsr_perception
-This package includes an action server for the hsr perception module.
+This package provides an executable that runs all modules for the perception used during Suturo 2018/19. It includes action servers running specific pipelines in [RoboSherlock](https://github.com/Suturo1819/robosherlock). 
 
 ## Dependencies
 The package depends on the follwoing packages
-* RoboSherlock [https://github.com/Suturo1819/robosherlock]
-* Suturo Perception Msgs [https://github.com/Suturo1819/suturo_msgs/tree/master/suturo_perception_msgs]
+* [RoboSherlock](https://github.com/Suturo1819/robosherlock "robosherlock")
+* [The Suturo RoboSherlock Package](https://github.com/Suturo1819/rs_hsrb_perception "rs_hsrb_perception")
+* [Suturo Perception Msgs](https://github.com/Suturo1819/suturo_msgs/tree/master/suturo_perception_msgs "suturo_perception_msgs")
 * actionlib
 * geometry msgs
 
@@ -12,8 +13,17 @@ The package depends on the follwoing packages
 Make sure that you have **RoboSherlock installed**. If that is the case, a simple `catkin build` is enough
 
 ## Usage
-To start the server, type
+To start the module, type
 `rosrun hsr_perception perception_server`
 
-The server waits now for a client that connects to it and specifies the pipeline that should be executed as a goal. By now, the only two working pipelines are **table** and **shelf**.
-As a result, the client gets a **list** with ObjectDetectionData (see `suturo_perception_msgs`).
+This starts all action servers handling requests for the perception module. As a server is started, an individual [RoboSherlock](https://github.com/Suturo1819/robosherlock) instance is created. The pipeline associated with the instance will be processed as soon as an action client sends a request to the specific server.
+
+### Actions
+Currently there are two actions and their respective servers defined:
+* `PerceiveTable`
+* `PerceiveShelf`
+
+They will be initialized with the names *hsr_perception_table* and *hsr_perception_shelf*. As the names let assume, the first action creates a [RoboSherlock](https://github.com/Suturo1819/robosherlock) instance with a pipeline that is optimized for processing the information for an observed *table*, while the second does the same with a pipeline processing an observed *shelf*. For futher detail please look at the [actions](https://github.com/Suturo1819/suturo_msgs/tree/master/suturo_perception_msgs/action) defined in the [suturo_msgs](https://github.com/Suturo1819/suturo_msgs).
+
+### Example clients
+The package also provides two demo clients (one for each server) that simply print out the content of the detection message. They can be used for testing purposes or as a demonstration on how the action servers can be used.

@@ -7,7 +7,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <suturo_perception_msgs/PerceiveAction.h>
+#include <suturo_perception_msgs/PerceiveTableAction.h>
 
 using namespace suturo_perception_msgs;
 
@@ -17,20 +17,20 @@ int main (int argc, char **argv)
 
     // create the action client
     // true causes the client to spin its own thread
-    actionlib::SimpleActionClient<PerceiveAction> ac("hsr_perception", true);
+    actionlib::SimpleActionClient<PerceiveTableAction> ac("hsr_perception_table", true);
 
-    ROS_INFO("Waiting for action server to start.");
+    ROS_INFO("Waiting for Table action server to start.");
     // wait for the action server to start
     ac.waitForServer(); //will wait for infinite time
 
-    ROS_INFO("Action server started, sending goal.");
+    ROS_INFO("Table Action server started, sending goal.");
     // send a goal to the action
-    PerceiveGoal goal;
-    goal.pipeline = "table";
+    PerceiveTableGoal goal;
+    goal.visualisation = 1;
     ac.sendGoal(goal);
 
     //wait for the action to return
-    bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
+    bool finished_before_timeout = ac.waitForResult(ros::Duration(120.0));
 
     if (finished_before_timeout)
     {
@@ -43,6 +43,8 @@ int main (int argc, char **argv)
             ROS_INFO("z: %f", obj.pose.pose.position.z);
             ROS_INFO("Width: %f", obj.width);
             ROS_INFO("Height: %f", obj.height);
+            ROS_INFO("Depth: %f", obj.depth);
+            ROS_INFO("Shape: %d", obj.shape);
             ROS_INFO("==================================================");
         }
         actionlib::SimpleClientGoalState state = ac.getState();

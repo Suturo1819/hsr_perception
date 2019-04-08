@@ -7,13 +7,10 @@
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/server/action_server.h>
 #include <suturo_perception_msgs/ObjectDetectionData.h>
-#include <suturo_perception_msgs/PerceiveAction.h>
+#include <suturo_perception_msgs/PerceiveTableAction.h>
+#include <suturo_perception_msgs/PerceiveShelfAction.h>
 
-// RoboSherlock stuff
-#include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
+#include <rs_hsrb_perception/SuturoProcessManager.h>
 
 using namespace suturo_perception_msgs;
 
@@ -22,26 +19,33 @@ class PerceptionActionServer {
 protected:
     ros::NodeHandle nh;
     std::string action_name;
-    actionlib::SimpleActionServer<PerceiveAction> server;
+    SuturoProcessManager pm;
 
-    PerceiveFeedback feedback;
-    PerceiveResult result;
-    RSAnalysisEngine engine;
-
-    void execPipeline(std::string pipeline);
-    void getClusterFeatures(rs::ObjectHypothesis cluster, std::vector<ObjectDetectionData> &data);
 
 public:
-    PerceptionActionServer(std::string name) :
-            action_name(name),
-            server(nh, name, boost::bind(&PerceptionActionServer::execute, this, _1), false)
-    {
-        server.start();
-        ROS_INFO("Perception Server started.");
+    PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath);
 
-    }
+    ~PerceptionActionServer(){};
+};
 
-    ~PerceptionActionServer(){}
+class PerceiveTable : PerceptionActionServer {
+protected:
+    actionlib::SimpleActionServer<PerceiveTableAction> server;
+    PerceiveTableFeedback feedback;
+    PerceiveTableResult result;
 
-    void execute(const PerceiveGoalConstPtr &goal);
+public:
+    PerceiveTable(std::string name, std::string savePath);
+    void execute(const PerceiveTableGoalConstPtr &goal);
+};
+
+class PerceiveShelf : PerceptionActionServer {
+protected:
+    actionlib::SimpleActionServer<PerceiveShelfAction> server;
+    PerceiveShelfFeedback feedback;
+    PerceiveShelfResult result;
+
+public:
+    PerceiveShelf(std::string name, std::string savePath);
+    void execute(const PerceiveShelfGoalConstPtr &goal);
 };
