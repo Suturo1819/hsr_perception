@@ -7,7 +7,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <suturo_perception_msgs/PerceiveShelfAction.h>
+#include <suturo_perception_msgs/ExtractObjectInformationAction.h>
 
 using namespace suturo_perception_msgs;
 
@@ -17,18 +17,19 @@ int main (int argc, char **argv)
 
     // create the action client
     // true causes the client to spin its own thread
-    actionlib::SimpleActionClient<PerceiveShelfAction> ac("hsr_perception_shelf", true);
+    actionlib::SimpleActionClient<ExtractObjectInformationAction> ac("extract_object_infos", true);
 
-    ROS_INFO("Waiting for Shelf action server to start.");
+    ROS_INFO("Waiting for ObjectInformationServer to start.");
     // wait for the action server to start
     ac.waitForServer(); //will wait for infinite time
 
-    ROS_INFO("Shelf Action server started, sending goal.");
+    ROS_INFO("Object info server started. Sending goal...");
     // send a goal to the action
-    PerceiveShelfGoal goal;
+    ExtractObjectInformationGoal goal;
     goal.visualisation = 1;
     ac.sendGoal(goal);
 
+    ROS_INFO("Goal has been sent. Waiting for results (this may take a while)...");
     //wait for the action to return
     bool finished_before_timeout = ac.waitForResult(ros::Duration(120.0));
 
