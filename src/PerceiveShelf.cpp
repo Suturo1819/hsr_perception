@@ -14,7 +14,12 @@ ROS_INFO("Perception Server for shelf observation started.");
 }
 
 void PerceiveShelf::execute(const PerceiveShelfGoalConstPtr &goal) {
-    pm.run(goal->visualisation, result.detectionData);
+    std::map<std::string, boost::any> arguments = std::map<std::string, boost::any>();
+    arguments["visualize"] = goal->visualisation;
+    std::vector<std::string> regions = std::vector<std::string>();
+    regions.emplace_back("robocup_shelf_2");
+    arguments["regions"] = regions;
+    pm.run(arguments, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
         server.publishFeedback(feedback);
