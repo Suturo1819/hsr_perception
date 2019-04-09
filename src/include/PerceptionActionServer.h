@@ -7,8 +7,8 @@
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/server/action_server.h>
 #include <suturo_perception_msgs/ObjectDetectionData.h>
-#include <suturo_perception_msgs/PerceiveTableAction.h>
-#include <suturo_perception_msgs/PerceiveShelfAction.h>
+#include <suturo_perception_msgs/ExtractObjectInfoAction.h>
+#include <suturo_perception_msgs/AnalyzeShelfStatusAction.h>
 
 #include <rs_hsrb_perception/SuturoProcessManager.h>
 
@@ -28,24 +28,24 @@ public:
     ~PerceptionActionServer(){};
 };
 
-class PerceiveTable : PerceptionActionServer {
+class ObjectInformationServer : PerceptionActionServer {
 protected:
-    actionlib::SimpleActionServer<PerceiveTableAction> server;
-    PerceiveTableFeedback feedback;
-    PerceiveTableResult result;
+    actionlib::SimpleActionServer<ExtractObjectInfoAction> server;
+    ExtractObjectInfoFeedback feedback;
+    ExtractObjectInfoResult result;
 
 public:
-    PerceiveTable(std::string name, std::string savePath);
-    void execute(const PerceiveTableGoalConstPtr &goal);
+    ObjectInformationServer(std::string name, std::string savePath);
+    void execute(const ExtractObjectInfoGoalConstPtr &goal);
 };
 
-class PerceiveShelf : PerceptionActionServer {
+class ShelfStatusServer : PerceptionActionServer {
 protected:
-    actionlib::SimpleActionServer<PerceiveShelfAction> server;
-    PerceiveShelfFeedback feedback;
-    PerceiveShelfResult result;
+    actionlib::SimpleActionServer<AnalyzeShelfStatusAction> server;
+    AnalyzeShelfStatusFeedback feedback;
+    AnalyzeShelfStatusResult result;
 
 public:
-    PerceiveShelf(std::string name, std::string savePath);
-    void execute(const PerceiveShelfGoalConstPtr &goal);
+    ShelfStatusServer(std::string name, std::string savePath);
+    void execute(const AnalyzeShelfStatusGoalConstPtr &goal);
 };
