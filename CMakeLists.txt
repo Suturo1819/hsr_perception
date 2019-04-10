@@ -91,8 +91,7 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(perception_server src/perception_server.cpp)
-add_executable(table_client src/table_client.cpp)
-add_executable(shelf_client src/demo_client.cpp)
+add_executable(demo_client src/demo_client.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -107,13 +106,10 @@ target_link_libraries(
   ${PROJECT_NAME}
 )
 target_link_libraries(
-   table_client
+   demo_client
    ${catkin_LIBRARIES}
 )
-target_link_libraries(
-    shelf_client
-    ${catkin_LIBRARIES}
-)
+
 
 #############
 ## Install ##

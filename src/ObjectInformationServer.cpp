@@ -9,7 +9,7 @@
 
 ObjectInformationServer::ObjectInformationServer(std::string name, std::string savePath) :
         PerceptionActionServer(name, "suturo_pipeline", savePath),
-        server(nh, name, boost::bind(&PerceiveTable::execute, this, _1), false)
+        server(nh, name, boost::bind(&ObjectInformationServer::execute, this, _1), false)
 {
     server.start();
     ROS_INFO("Object Information Server started.");
@@ -18,10 +18,9 @@ ObjectInformationServer::ObjectInformationServer(std::string name, std::string s
 
 void ObjectInformationServer::execute(const ExtractObjectInfoGoalConstPtr &goal) {
     std::map<std::string, boost::any> arguments = std::map<std::string, boost::any>();
-    arguments["visualize"] = goal->visualisation;
+    arguments["visualize"] = goal->visualize;
     std::vector<std::string> regions = std::vector<std::string>();
-    regions.assign(goal->regions);
-    arguments["regions"] = regions;
+    arguments["regions"] = goal->regions;
     pm.run(arguments, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";

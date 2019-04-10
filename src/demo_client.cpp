@@ -7,7 +7,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <suturo_perception_msgs/ExtractObjectInformationAction.h>
+#include <suturo_perception_msgs/ExtractObjectInfoAction.h>
 
 using namespace suturo_perception_msgs;
 
@@ -17,7 +17,7 @@ int main (int argc, char **argv)
 
     // create the action client
     // true causes the client to spin its own thread
-    actionlib::SimpleActionClient<ExtractObjectInformationAction> ac("extract_object_infos", true);
+    actionlib::SimpleActionClient<ExtractObjectInfoAction> ac("extract_object_infos", true);
 
     ROS_INFO("Waiting for ObjectInformationServer to start.");
     // wait for the action server to start
@@ -25,8 +25,10 @@ int main (int argc, char **argv)
 
     ROS_INFO("Object info server started. Sending goal...");
     // send a goal to the action
-    ExtractObjectInformationGoal goal;
-    goal.visualisation = 1;
+    ExtractObjectInfoGoal goal;
+    goal.visualize = 1;
+    goal.regions.push_back("robocup_table");
+    goal.regions.push_back("robocup_shelf_2");
     ac.sendGoal(goal);
 
     ROS_INFO("Goal has been sent. Waiting for results (this may take a while)...");
@@ -38,7 +40,8 @@ int main (int argc, char **argv)
         auto res = ac.getResult();
         for(auto obj : res->detectionData) {
             ROS_INFO("==================================================");
-            ROS_INFO("Detected object: %s", obj.name.c_str());
+            ROS_INFO("Detected object: %s", obj.obj_class.c_str());
+            ROS_INFO("Region: %s", obj.region.c_str());
             ROS_INFO("x: %f", obj.pose.pose.position.x);
             ROS_INFO("y: %f", obj.pose.pose.position.y);
             ROS_INFO("z: %f", obj.pose.pose.position.z);
