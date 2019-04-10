@@ -20,10 +20,9 @@ This starts all action servers handling requests for the perception module. As a
 
 ### Actions
 Currently there are two actions and their respective servers defined:
-* `PerceiveTable`
-* `PerceiveShelf`
-
-They will be initialized with the names *hsr_perception_table* and *hsr_perception_shelf*. As the names let assume, the first action creates a [RoboSherlock](https://github.com/Suturo1819/robosherlock) instance with a pipeline that is optimized for processing the information for an observed *table*, while the second does the same with a pipeline processing an observed *shelf*. For futher detail please look at the [actions](https://github.com/Suturo1819/suturo_msgs/tree/master/suturo_perception_msgs/action) defined in the [suturo_msgs](https://github.com/Suturo1819/suturo_msgs).
+* `ExtractObjectInformation`
+* `AnalyzeShelfStatus`
+For futher detail please look at the [actions](https://github.com/Suturo1819/suturo_msgs/tree/master/suturo_perception_msgs/action) defined in the [suturo_msgs](https://github.com/Suturo1819/suturo_msgs).
 
 ### Example clients
-The package also provides two demo clients (one for each server) that simply print out the content of the detection message. They can be used for testing purposes or as a demonstration on how the action servers can be used.
+The package also provides a demo client that simply prints out the content of the detection message. They can be used for testing purposes or as a demonstration on how the action servers can be used.
