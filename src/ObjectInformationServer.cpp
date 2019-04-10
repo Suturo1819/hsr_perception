@@ -1,22 +1,27 @@
 /**
- * Action Server for table pipeline
+ * Runs the RoboSherlock Pipeline and collects information about each recognized object
+ * The information is encapsuled as an ObjectDetectionData object
  * @author: Fenja Kollasch
  */
+
 #include <PerceptionActionServer.h>
 
 
-PerceiveTable::PerceiveTable(std::string name, std::string savePath) :
-        PerceptionActionServer(name, "hsrb_table", savePath),
+ObjectInformationServer::ObjectInformationServer(std::string name, std::string savePath) :
+        PerceptionActionServer(name, "suturo_pipeline", savePath),
         server(nh, name, boost::bind(&PerceiveTable::execute, this, _1), false)
 {
     server.start();
-    ROS_INFO("Perception Server for table observation started.");
+    ROS_INFO("Object Information Server started.");
 }
 
 
-void PerceiveTable::execute(const PerceiveTableGoalConstPtr &goal) {
+void ObjectInformationServer::execute(const ExtractObjectInfoGoalConstPtr &goal) {
     std::map<std::string, boost::any> arguments = std::map<std::string, boost::any>();
     arguments["visualize"] = goal->visualisation;
+    std::vector<std::string> regions = std::vector<std::string>();
+    regions.assign(goal->regions);
+    arguments["regions"] = regions;
     pm.run(arguments, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
@@ -27,3 +32,4 @@ void PerceiveTable::execute(const PerceiveTableGoalConstPtr &goal) {
         server.publishFeedback(feedback);
     }
 }
+

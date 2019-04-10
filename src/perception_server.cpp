@@ -11,8 +11,7 @@
 int main(int argc, char** argv) {
    ros::init(argc, argv, "hsr_perception");
    ros::MultiThreadedSpinner spinner(4);
-   PerceiveTable table_server("hsr_perception_table", "/home/suturo/Desktop/temp");
-   PerceiveShelf shelf_server("hsr_perception_shelf", "/home/suturo/Desktop/temp");
+   ObjectInformationServer object_info_server("extract_object_infos", "/home/suturo/Desktop/temp");
    spinner.spin();
 
    return 0;
