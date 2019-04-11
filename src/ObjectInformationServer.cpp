@@ -21,6 +21,7 @@ void ObjectInformationServer::execute(const ExtractObjectInfoGoalConstPtr &goal)
     arguments["visualize"] = goal->visualize;
     std::vector<std::string> regions = std::vector<std::string>();
     arguments["regions"] = goal->regions;
+    result.detectionData.clear();
     pm.run(arguments, result.detectionData);
     if(!result.detectionData.empty()) {
         feedback.feedback = "Object Feature detection was successful.";
