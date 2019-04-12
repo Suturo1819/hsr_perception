@@ -12,5 +12,14 @@ ShelfStatusServer::ShelfStatusServer(std::string name, std::string savePath) :
 }
 
 void ShelfStatusServer::execute(const AnalyzeShelfStatusGoalConstPtr &goal) {
-    //@Todo: figure out what to do here...
+    bool door = pm.has_vertical_plane();
+    if(door) {
+        result.door_open = 0;
+        feedback.feedback = "Shelf door is shut";
+    } else {
+        result.door_open = 1;
+        feedback.feedback = "Shelf door is open";
+    }
+    server.publishFeedback(feedback);
+    server.setSucceeded(result);
 }

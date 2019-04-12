@@ -80,7 +80,8 @@ find_library(RS_SUTURO rs_hsrb_perception)
 add_library(${PROJECT_NAME}
         src/PerceptionActionServer.cpp
         src/include/PerceptionActionServer.h
-        src/ObjectInformationServer.cpp)
+        src/ObjectInformationServer.cpp
+        src/ShelfStatusServer.cpp)
 target_link_libraries(${PROJECT_NAME} ${RS_SUTURO})
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -92,6 +93,7 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(perception_server src/perception_server.cpp)
 add_executable(demo_client src/demo_client.cpp)
+add_executable(door_client src/door_client.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -108,6 +110,10 @@ target_link_libraries(
 target_link_libraries(
    demo_client
    ${catkin_LIBRARIES}
+)
+target_link_libraries(
+    door_client
+    ${catkin_LIBRARIES}
 )
 
 
