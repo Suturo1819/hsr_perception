@@ -3,8 +3,8 @@
  * @author: Fenja Kollasch
  */
 #include <PerceptionActionServer.h>
-ShelfStatusServer::ShelfStatusServer(std::string name, std::string savePath) :
-        PerceptionActionServer(name, "shelf_door", savePath),
+ShelfStatusServer::ShelfStatusServer(std::string name) :
+        PerceptionActionServer(name, "shelf_door"),
         server(nh, name, boost::bind(&ShelfStatusServer::execute, this, _1), false)
 {
     server.start();

@@ -18,6 +18,15 @@ PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pi
         pm.init(pipeline);
 }
 
+PerceptionActionServer::PerceptionActionServer(std::string &name, std::string pipeline) :
+
+        action_name(name),
+        pm(nh, name)
+{
+    ROS_INFO("Initializing RoboSherlock...");
+    pm.init(pipeline);
+}
+
 
 
 

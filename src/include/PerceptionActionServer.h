@@ -24,6 +24,7 @@ protected:
 
 public:
     PerceptionActionServer(std::string &name, std::string pipeline, std::string savePath);
+    PerceptionActionServer(std::string &name, std::string pipeline);
 
     ~PerceptionActionServer(){};
 };
@@ -46,6 +47,6 @@ protected:
     AnalyzeShelfStatusResult result;
 
 public:
-    ShelfStatusServer(std::string name, std::string savePath);
+    ShelfStatusServer(std::string name);
     void execute(const AnalyzeShelfStatusGoalConstPtr &goal);
 };

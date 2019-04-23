@@ -30,6 +30,7 @@ void ObjectInformationServer::execute(const ExtractObjectInfoGoalConstPtr &goal)
     } else {
         feedback.feedback = "No object detection data was perceived. Check standard output for further information.";
         server.publishFeedback(feedback);
+        server.setAborted();
     }
 }
 

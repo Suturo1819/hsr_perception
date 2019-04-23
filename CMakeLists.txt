@@ -7,7 +7,7 @@ project(hsr_perception)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED robosherlock rs_hsrb_perception suturo_perception_msgs geometry_msgs actionlib_msgs)
+find_package(catkin REQUIRED robosherlock rs_hsrb_perception suturo_perception_msgs geometry_msgs actionlib_msgs image_transport)
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
 
 ## System dependencies are found with CMake's conventions
